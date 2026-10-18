@@ -12,14 +12,20 @@ RUN    dnf install -y \
     && dnf install -y \
                    coreutils-single \
                    curl \
+                   findutils \
+                   gawk \
                    git \
                    glibc-static \
+                   grep \
+                   gzip \
                    rpm-build \
                    rpm-sign \
                    rpmdevtools \
+                   sed \
                    systemd \
                    systemd-rpm-macros \
                    systemd-units \
+                   tar \
                    which \
                    yum-utils
 

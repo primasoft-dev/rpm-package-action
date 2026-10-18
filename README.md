@@ -11,6 +11,7 @@ This Github Action provides a simple and flexible way to package and sign rpms f
 | `path`                     | The path to the directory containing all the files needed to build the RPM                                                                          | Yes |                        | 
 | `spec`                     | The spec file to build.  The spec file must be located in the `path` above                                                                          | Yes |                        |
 | `artifacts-token`          | The token to use to download private git repos or release objects if present                                                                        | No  |                        |
+| `build-command`            | Run this command inside the distro container, in the mounted path (/mnt/repo), instead of the fixed rpmbuild packaging. Empty keeps the original behaviour. | No  |                        |
 | `build-host`               | The build host to specify for inclusion into the RPM information                                                                                    | No  |                        |
 | `container-registry-user`  | The username to login to the container registry with if present                                                                                     | No  |                        |
 | `container-registry-url`   | If specified, the non-dockerhub container URL.  For Github Containers specify 'ghcr.io'                                                             | No  |                        |
@@ -52,6 +53,32 @@ jobs:
 In this example the repo using this workflow contains the files needed to
 build the rpm (including the example.spec file).  The output will be placed in
 the default location of `output` and will not be signed.
+
+### Example workflow - run your own build command
+
+```yaml
+name: RPM Package
+on: push
+
+jobs:
+    package_rpm:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v2
+
+        - name: Build with my own script
+          uses: xmidt-org/rpm-package-action@v1
+          with:
+            path: .
+            spec: build/rpm.spec
+            distro: rocky-8
+            build-command: bash build/rpm.sh
+```
+
+The command runs inside the distro container, in the mounted `path`
+(`/mnt/repo`), and the step's exit status is the command's own.  The fixed
+rpmbuild packaging, the signing and the `output-dir` copy are all skipped:
+the RPM lands wherever your own command writes it, so collect it from there.
 
 ### Example workflow - use existing docker image from the action and sign the package
 

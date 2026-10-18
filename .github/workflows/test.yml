@@ -41,3 +41,31 @@ jobs:
             exit 1
           fi
           echo "produced: $rpm"
+
+  build-command-mode:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run a command instead of the fixed build
+        uses: ./
+        with:
+          path: tests/fixtures/hello
+          spec: hello.spec
+          distro: rocky-8
+          build-command: 'printf ''%s\n'' "$PWD" > build-command-pwd.txt && rpm -E %{dist} > build-command-dist.txt'
+
+      - name: Verify the command ran in the mount, on the distro
+        run: |
+          set -e
+          cd tests/fixtures/hello
+          [ "$(cat build-command-pwd.txt)" = "/mnt/repo" ]
+          case "$(cat build-command-dist.txt)" in
+              .el8*) ;;
+              *)
+                  echo "no .el8 dist tag: $(cat build-command-dist.txt)" >&2
+                  exit 1 ;;
+          esac

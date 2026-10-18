@@ -5,6 +5,16 @@
 # Fail on error
 set -e
 
+# Run a caller-provided command instead of the fixed packaging below: cd
+# into the mounted 'path' and exec, so the exit status is the command's own
+# and no later step of this script runs. Everything below - builddep, the
+# SOURCES copy, rpmbuild, signing, the output copy - is skipped. Leave
+# INPUTS_BUILD_COMMAND empty for the original behavior exactly.
+if [ ! -z "$INPUTS_BUILD_COMMAND" ]; then
+    cd /mnt/repo
+    exec bash -c "$INPUTS_BUILD_COMMAND"
+fi
+
 # Set up the rpm development tree.
 rpmdev-setuptree
 
